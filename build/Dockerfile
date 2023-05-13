@@ -9,23 +9,17 @@ LABEL org.opencontainers.image.licenses=GPLv2
 
 ARG USER="peirates"
 ARG MY_HOME="/usr/local/go/src/peirates"
+
 WORKDIR /usr/local/go/src/peirates
 
-RUN mkdir -p ${MY_HOME} ;\
-  apk add --no-cache \
-    tar \
-    git \
-    make \
-    openssh \
-    curl \
-    gcc \
-    doas \
-    libc-dev\
-  && rm -rf /var/cache/apk/*
+COPY go.mod go.sum ./
+RUN go mod download
 
-COPY . ${MY_HOME}/
-RUN \
-  ${MY_HOME}/build.sh
+RUN apk add --no-cache \
+  gcc \
+  libc-dev
+COPY . .
+RUN ./build.sh
 
 FROM alpine:3.13
 
